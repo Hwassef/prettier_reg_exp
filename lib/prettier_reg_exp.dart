@@ -1,42 +1,124 @@
+/// A class for generating customized regular expressions with various options.
+///
+/// This class provides a flexible way to create regular expressions for different
+/// use cases, including validating emails, URLs, phone numbers, and more.
 class PrettierRegExp {
+  /// Whether to include numeric characters in the pattern.
   final bool supportNumbers;
+
+  /// Whether to include alphabetic characters in the pattern.
   final bool supportLetters;
+
+  /// Whether to include whitespace characters in the pattern.
   final bool supportWhitespace;
+
+  /// Whether to include special characters in the pattern.
   final bool supportSpecialChars;
+
+  /// Whether to include Arabic characters in the pattern.
   final bool supportArabic;
+
+  /// Whether the pattern should be case-insensitive.
   final bool caseInsensitive;
+
+  /// Whether to enable multi-line mode for the pattern.
   final bool multiLine;
+
+  /// Whether to allow '.' to match newline characters.
   final bool dotAll;
+
+  /// Whether to include positive lookahead assertions.
   final bool includeLookAhead;
+
+  /// Whether to include positive lookbehind assertions.
   final bool includeLookBehind;
+
+  /// A custom pattern to be used instead of the generated one.
   final String customPattern;
+
+  /// Whether to generate an email validation pattern.
   final bool isEmail;
+
+  /// Whether to generate a URL validation pattern.
   final bool isUrl;
+
+  /// Whether to generate a phone number validation pattern.
   final bool isPhoneNumber;
+
+  /// The minimum length of the matched string.
   final int? minLength;
+
+  /// The maximum length of the matched string.
   final int? maxLength;
+
+  /// A string that must appear at the start of the match.
   final String? prefix;
+
+  /// A string that must appear at the end of the match.
   final String? suffix;
+
+  /// A list of strings that must be present in the match.
   final List<String> mustContain;
+
+  /// A list of strings that must not be present in the match.
   final List<String> mustNotContain;
+
+  /// The exact number of times the pattern should repeat.
   final int? exactRepetitions;
+
+  /// The minimum number of times the pattern should repeat.
   final int? minRepetitions;
+
+  /// The maximum number of times the pattern should repeat.
   final int? maxRepetitions;
+
+  /// Whether to allow an empty string to match.
   final bool allowEmptyString;
+
+  /// A list of words that are allowed to match.
   final List<String> allowedWords;
+
+  /// A list of words that are not allowed to match.
   final List<String> disallowedWords;
+
+  /// Whether to generate an IPv4 address validation pattern.
   final bool isIPv4;
+
+  /// Whether to generate an IPv6 address validation pattern.
   final bool isIPv6;
+
+  /// Whether to generate a hexadecimal color code validation pattern.
   final bool isHexColor;
+
+  /// Whether to generate a date validation pattern.
   final bool isDate;
+
+  /// The format string for date validation (e.g., "YYYY-MM-DD").
   final String? dateFormat;
+
+  /// Whether to generate a time validation pattern.
   final bool isTime;
+
+  /// The format string for time validation (e.g., "HH:mm:ss").
   final String? timeFormat;
+
+  /// Whether to generate a latitude validation pattern.
   final bool isLatitude;
+
+  /// Whether to generate a longitude validation pattern.
   final bool isLongitude;
+
+  /// Whether to generate a credit card number validation pattern.
   final bool isCreditCard;
+
+  /// A list of supported credit card types for validation.
   final List<String> supportedCreditCards;
 
+  /// Creates a new instance of PrettierRegExp with the specified options.
+  ///
+  /// All boolean parameters default to false, and all list parameters default to empty lists.
+  /// Numeric parameters (minLength, maxLength, exactRepetitions, minRepetitions, maxRepetitions)
+  /// default to null, meaning no constraint is applied.
   PrettierRegExp({
     this.supportNumbers = false,
     this.supportLetters = false,
@@ -76,6 +158,14 @@ class PrettierRegExp {
     this.isCreditCard = false,
     this.supportedCreditCards = const [],
   });
+
+  /// Generates a RegExp object based on the configured options.
+  ///
+  /// Returns:
+  /// A [RegExp] object that can be used for pattern matching.
+  ///
+  /// Throws:
+  /// An [Exception] if there's an error generating the regular expression.
   RegExp generate() {
     try {
       if (isEmail) return _emailRegExp();
@@ -99,7 +189,6 @@ class PrettierRegExp {
       pattern = _applyCustomPattern(pattern);
 
       pattern = '^' + pattern + r'$';
-      print(pattern);
       return RegExp(
         pattern,
         caseSensitive: !caseInsensitive,
@@ -112,6 +201,7 @@ class PrettierRegExp {
     }
   }
 
+  /// Builds the base pattern based on the supported character types.
   String _buildBasePattern() {
     final List<String> patterns = [];
     if (supportNumbers) patterns.add(r'\d');
@@ -128,20 +218,19 @@ class PrettierRegExp {
     return patterns.isNotEmpty ? '[${patterns.join()}]+' : '';
   }
 
+  /// Applies length constraints to the pattern.
   String _applyLengthConstraints(String pattern) {
     if (minLength != null && maxLength != null) {
-      // Apply exact length constraints
       return '^.{$minLength,$maxLength}' r'$' '';
     } else if (minLength != null) {
-      // Apply minimum length constraint
       return '^.{$minLength,}' r'$' '';
     } else if (maxLength != null) {
-      // Apply maximum length constraint
       return '^.{0,$maxLength}' r'$' '';
     }
-    return pattern; // No length constraints
+    return pattern;
   }
 
+  /// Applies repetition constraints to the pattern.
   String _applyRepetitions(String pattern) {
     if (exactRepetitions != null) {
       return '(?:$pattern){$exactRepetitions}';
@@ -152,37 +241,37 @@ class PrettierRegExp {
     }
   }
 
+  /// Applies prefix and suffix to the pattern.
   String _applyPrefixSuffix(String pattern) {
     if (prefix != null) pattern = RegExp.escape(prefix!) + pattern;
     if (suffix != null) pattern = pattern + RegExp.escape(suffix!);
     return pattern;
   }
 
+  /// Applies lookaround assertions to the pattern.
   String _applyLookarounds(String pattern) {
     String lookaheads = '';
 
-    // Positive lookaheads for mustContain
     if (mustContain.isNotEmpty) {
       for (final contain in mustContain) {
         lookaheads += '(?=.*${RegExp.escape(contain)})';
       }
     }
 
-    // Negative lookaheads for mustNotContain
     if (mustNotContain.isNotEmpty) {
       for (final notContain in mustNotContain) {
         lookaheads += '(?!.*${RegExp.escape(notContain)})';
       }
     }
 
-    // Apply lookaheads and append base pattern
     return lookaheads + (pattern.isNotEmpty ? pattern : '.*');
   }
 
+  /// Applies word constraints to the pattern.
   String _applyWordConstraints(String pattern) {
     if (allowedWords.isNotEmpty) {
       final allowedPattern = allowedWords.map(RegExp.escape).join('|');
-      pattern = '(?:${allowedPattern})';
+      pattern = '(?:$allowedPattern)';
     }
     if (disallowedWords.isNotEmpty) {
       pattern =
@@ -191,10 +280,12 @@ class PrettierRegExp {
     return pattern;
   }
 
+  /// Applies a custom pattern if provided.
   String _applyCustomPattern(String pattern) {
     return customPattern.isNotEmpty ? customPattern : pattern;
   }
 
+  /// Generates a RegExp for email validation.
   RegExp _emailRegExp() {
     return RegExp(
       r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
@@ -205,6 +296,7 @@ class PrettierRegExp {
     );
   }
 
+  /// Generates a RegExp for URL validation.
   RegExp _urlRegExp() {
     return RegExp(
       r'^(https?|ftp)://[^\s/$.?#].[^\s]*$',
@@ -215,6 +307,7 @@ class PrettierRegExp {
     );
   }
 
+  /// Generates a RegExp for phone number validation.
   RegExp _phoneRegExp() {
     return RegExp(
       r'^\+?[1-9]\d{1,14}$',
@@ -225,6 +318,7 @@ class PrettierRegExp {
     );
   }
 
+  /// Generates a RegExp for IPv4 address validation.
   RegExp _ipv4RegExp() {
     return RegExp(
       r'^(\d{1,3}\.){3}\d{1,3}$',
@@ -234,6 +328,8 @@ class PrettierRegExp {
       unicode: true,
     );
   }
+
+  /// Generates a RegExp for IPv6 address validation.
 
   RegExp _ipv6RegExp() {
     return RegExp(
@@ -245,6 +341,9 @@ class PrettierRegExp {
     );
   }
 
+  /// Generates a RegExp for hexadecimal color code validation.
+  ///
+  /// Matches 3 or 6 digit hexadecimal color codes prefixed with '#'.
   RegExp _hexColorRegExp() {
     return RegExp(
       r'^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$',
@@ -255,6 +354,10 @@ class PrettierRegExp {
     );
   }
 
+  /// Generates a RegExp for date validation.
+  ///
+  /// If a dateFormat is provided, it uses that format.
+  /// Otherwise, it defaults to the format 'YYYY-MM-DD'.
   RegExp _dateRegExp() {
     final pattern = dateFormat != null
         ? _convertDateFormatToRegex(dateFormat!)
@@ -268,6 +371,10 @@ class PrettierRegExp {
     );
   }
 
+  /// Generates a RegExp for time validation.
+  ///
+  /// If a timeFormat is provided, it uses that format.
+  /// Otherwise, it defaults to the format 'HH:mm:ss'.
   RegExp _timeRegExp() {
     final pattern = timeFormat != null
         ? _convertTimeFormatToRegex(timeFormat!)
@@ -281,6 +388,9 @@ class PrettierRegExp {
     );
   }
 
+  /// Generates a RegExp for latitude validation.
+  ///
+  /// Matches latitude values between -90 and 90 degrees.
   RegExp _latitudeRegExp() {
     return RegExp(
       r'^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?)$',
@@ -291,6 +401,9 @@ class PrettierRegExp {
     );
   }
 
+  /// Generates a RegExp for longitude validation.
+  ///
+  /// Matches longitude values between -180 and 180 degrees.
   RegExp _longitudeRegExp() {
     return RegExp(
       r'^[-+]?((1[0-7]\d|[1-9]\d?)\.\d+|180(\.0+)?)$',
@@ -301,6 +414,10 @@ class PrettierRegExp {
     );
   }
 
+  /// Generates a RegExp for credit card number validation.
+  ///
+  /// If supportedCreditCards is empty, it matches all supported card types.
+  /// Otherwise, it only matches the specified card types.
   RegExp _creditCardRegExp() {
     final supportedPatterns = {
       'visa': r'^4[0-9]{12}(?:[0-9]{3})?$',
@@ -336,6 +453,10 @@ class PrettierRegExp {
     }
   }
 
+  /// Returns the RegExp pattern for a specific credit card type.
+  ///
+  /// [cardType] The type of credit card (e.g., 'visa', 'mastercard').
+  /// Returns a default pattern for unrecognized card types.
   String _getCreditCardPattern(String cardType) {
     switch (cardType.toLowerCase()) {
       case 'visa':
@@ -351,6 +472,10 @@ class PrettierRegExp {
     }
   }
 
+  /// Converts a time format string to a regular expression pattern.
+  ///
+  /// [format] The time format string (e.g., "HH:mm:ss").
+  /// Returns a string representing the regular expression pattern for the given time format.
   String _convertTimeFormatToRegex(String format) {
     return format
         .replaceAll('HH', r'(?:[01]\d|2[0-3])') // Hours in 24-hour format
@@ -358,6 +483,10 @@ class PrettierRegExp {
         .replaceAll('ss', r'[0-5]\d'); // Seconds
   }
 
+  /// Converts a date format string to a regular expression pattern.
+  ///
+  /// [format] The date format string (e.g., "YYYY-MM-DD").
+  /// Returns a string representing the regular expression pattern for the given date format.
   String _convertDateFormatToRegex(String format) {
     return format
         .replaceAll('YYYY', r'\d{4}') // Year
