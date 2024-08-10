@@ -1,6 +1,6 @@
 name: prettier_reg_exp
 description: "Create and manage regular expressions with ease, including predefined patterns, length constraints, and more."
-version: 1.0.0
+version: 0.0.1
 homepage:
 
 environment:
