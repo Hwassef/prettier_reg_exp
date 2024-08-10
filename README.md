@@ -1,5 +1,7 @@
 ## PrettierRegExp
 
+<a href="https://www.buymeacoffee.com/Hwassef" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
+
 **Introduction**
 
 PrettierRegExp is a powerful Dart package that streamlines regular expression creation and management. It empowers you to effortlessly validate and parse input data using customizable patterns and constraints, ensuring data integrity and accuracy in your applications.
