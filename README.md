@@ -89,8 +89,6 @@ void main() {
 
 Additional Resources
 
-Documentation: Visit the dedicated API documentation (link to be provided) for comprehensive usage instructions and a detailed API reference.
-
 Contributing: Enhance the package further! Please refer to the contributing guidelines (link to be provided) for guidance on how to contribute your valuable code.
 
 Issues: Encountered a bug or have a feature request? Open an issue on GitHub (link to be provided) to report it.
