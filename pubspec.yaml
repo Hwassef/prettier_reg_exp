@@ -1,7 +1,7 @@
 name: prettier_reg_exp
 description: "Create and manage regular expressions with ease, including predefined patterns, length constraints, and more."
 version: 0.0.1
-homepage:
+homepage: https://github.com/Hwassef/prettier_reg_exp
 
 environment:
   sdk: '>=3.4.3 <4.0.0'
